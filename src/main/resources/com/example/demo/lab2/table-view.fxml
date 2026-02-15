@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.demo.lab2.TableController"
+      spacing="10">
+
+    <padding>
+        <Insets top="12" right="12" bottom="12" left="12"/>
+    </padding>
+
+    <TitledPane text="Область вибору функції" collapsible="false"
+                prefHeight="110" minHeight="110" maxHeight="110">
+        <VBox spacing="8">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <fx:define>
+                <ToggleGroup fx:id="functionsGroup"/>
+            </fx:define>
+
+            <HBox spacing="12">
+                <RadioButton fx:id="f1Radio"
+                             text="y = (2^(x+1) + 10) / 4 + 9 / 2^(145x − 2)"
+                             toggleGroup="$functionsGroup"
+                             selected="true"/>
+                <Label fx:id="f1Result"
+                       text="—"
+                       wrapText="true"
+                       maxWidth="Infinity"
+                       HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+            <HBox spacing="12">
+                <RadioButton fx:id="f2Radio"
+                             text="y = 2·sin(x) − cos(x^4)"
+                             toggleGroup="$functionsGroup"/>
+                <Label fx:id="f2Result"
+                       text="—"
+                       wrapText="true"
+                       maxWidth="Infinity"
+                       HBox.hgrow="ALWAYS"/>
+            </HBox>
+
+        </VBox>
+    </TitledPane>
+
+    <TitledPane text="Область параметрів" collapsible="false"
+                prefHeight="170" minHeight="170" maxHeight="170">
+        <GridPane hgap="10" vgap="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <columnConstraints>
+                <ColumnConstraints minWidth="180"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+
+            <Label text="Ліва границя a:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <Spinner fx:id="aSpinner" GridPane.rowIndex="0" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+            <Label text="Права границя b:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <Spinner fx:id="bSpinner" GridPane.rowIndex="1" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+            <Label text="Кількість точок n (≥ 2):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <Spinner fx:id="nSpinner" GridPane.rowIndex="2" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+            <Button text="Обчислити та заповнити таблицю"
+                    onAction="#onCalculate"
+                    GridPane.rowIndex="3"
+                    GridPane.columnIndex="0"
+                    GridPane.columnSpan="2"
+                    maxWidth="Infinity"/>
+        </GridPane>
+    </TitledPane>
+
+    <TitledPane text="Таблиця" collapsible="false" VBox.vgrow="ALWAYS">
+        <TableView fx:id="table" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="colI" text="i" prefWidth="60"/>
+                <TableColumn fx:id="colX" text="x" prefWidth="220"/>
+                <TableColumn fx:id="colY" text="y" prefWidth="260"/>
+                <TableColumn fx:id="colStatus" text="Статус" prefWidth="260"/>
+            </columns>
+        </TableView>
+    </TitledPane>
+
+</VBox>
