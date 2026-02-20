@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import com.example.demo.lab3.FunctionPlotView?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.demo.lab4.Step4PlotController">
+
+    <top>
+        <HBox spacing="12">
+            <padding><Insets top="10" right="10" bottom="10" left="10"/></padding>
+
+            <Label text="Колір:"/>
+            <ColorPicker fx:id="lineColorPicker"/>
+
+            <Label text="Товщина:"/>
+            <Slider fx:id="lineWidthSlider" min="0.5" max="10" value="2" prefWidth="160"/>
+            <Label fx:id="lineWidthLabel" text="2.0"/>
+
+            <Label text="Нарис:"/>
+            <ChoiceBox fx:id="lineStyleChoice"/>
+        </HBox>
+    </top>
+
+    <center>
+        <FunctionPlotView fx:id="plotView"/>
+    </center>
+</BorderPane>

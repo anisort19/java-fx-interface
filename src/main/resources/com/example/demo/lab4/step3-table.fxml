@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.demo.lab4.Step3TableController"
+      spacing="10">
+
+    <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+    <Label fx:id="infoLabel" text="—" wrapText="true"/>
+
+    <TableView fx:id="table" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="colI" text="i" prefWidth="60"/>
+            <TableColumn fx:id="colX" text="x" prefWidth="220"/>
+            <TableColumn fx:id="colY" text="y" prefWidth="260"/>
+            <TableColumn fx:id="colStatus" text="Статус" prefWidth="260"/>
+        </columns>
+    </TableView>
+
+    <Button text="Побудувати графік" onAction="#onNext" maxWidth="Infinity"/>
+</VBox>
