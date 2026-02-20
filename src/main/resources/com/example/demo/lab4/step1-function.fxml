@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.demo.lab4.Step1FunctionController"
+      spacing="10">
+    <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+    <Label text="Оберіть функцію:" style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+
+    <fx:define>
+        <ToggleGroup fx:id="functionsGroup"/>
+    </fx:define>
+
+    <RadioButton fx:id="f1Radio"
+                 text="y = (2^(x+1) + 10) / 4 + 9 / 2^(145x − 2)"
+                 toggleGroup="$functionsGroup"
+                 selected="true"/>
+
+    <RadioButton fx:id="f2Radio"
+                 text="y = 2·sin(x) − cos(x^4)"
+                 toggleGroup="$functionsGroup"/>
+
+    <Button text="Далі"
+            onAction="#onNext"
+            maxWidth="Infinity"/>
+</VBox>

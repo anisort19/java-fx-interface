@@ -5,12 +5,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class DiagramApplication extends Application {
+public class PlotApplication extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
         FXMLLoader fxmlLoader =
-                new FXMLLoader(DiagramApplication.class.getResource("diagram-view.fxml"));
+                new FXMLLoader(PlotApplication.class.getResource("plot-view.fxml"));
 
         Scene scene = new Scene(fxmlLoader.load(), 900, 520);
 

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.demo.lab4.Step2ParamsController"
+      spacing="10">
+    <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+
+    <GridPane hgap="10" vgap="10">
+        <columnConstraints>
+            <ColumnConstraints minWidth="180"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="Ліва границя a:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <Spinner fx:id="aSpinner" GridPane.rowIndex="0" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+        <Label text="Права границя b:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <Spinner fx:id="bSpinner" GridPane.rowIndex="1" GridPane.columnIndex="1" maxWidth="Infinity"/>
+
+        <Label text="Кількість точок n (≥ 2):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Spinner fx:id="nSpinner" GridPane.rowIndex="2" GridPane.columnIndex="1" maxWidth="Infinity"/>
+    </GridPane>
+
+    <Button text="Далі" onAction="#onNext" maxWidth="Infinity"/>
+</VBox>

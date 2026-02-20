@@ -13,7 +13,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DiagramController {
+public class PlotController {
 
     @FXML private RadioButton f1Radio;
     @FXML private RadioButton f2Radio;
