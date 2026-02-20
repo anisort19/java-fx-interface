@@ -1,4 +1,4 @@
-package com.example.demo.lab2;
+package com.example.demo.lab3;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -6,13 +6,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+        import javafx.scene.paint.Color;
 import javafx.util.StringConverter;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TableController {
+public class DiagramController {
 
     @FXML private RadioButton f1Radio;
     @FXML private RadioButton f2Radio;
@@ -30,6 +31,12 @@ public class TableController {
     @FXML private TableColumn<Row, String> colX;
     @FXML private TableColumn<Row, String> colY;
     @FXML private TableColumn<Row, String> colStatus;
+
+    @FXML private FunctionPlotView plotView;
+    @FXML private ColorPicker lineColorPicker;
+    @FXML private Slider lineWidthSlider;
+    @FXML private Label lineWidthLabel;
+    @FXML private ChoiceBox<FunctionPlotView.LineStyle> lineStyleChoice;
 
     private final DecimalFormat df = new DecimalFormat("#.###########");
     private final ObservableList<Row> rows = FXCollections.observableArrayList();
@@ -49,6 +56,17 @@ public class TableController {
 
         nSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(2, 1_000_000, 11, 1));
         nSpinner.setEditable(true);
+
+        lineStyleChoice.setItems(FXCollections.observableArrayList(FunctionPlotView.LineStyle.values()));
+        lineStyleChoice.setValue(FunctionPlotView.LineStyle.SOLID);
+
+        lineColorPicker.setValue(Color.DODGERBLUE);
+        plotView.lineColorProperty().bind(lineColorPicker.valueProperty());
+
+        plotView.lineWidthProperty().bind(lineWidthSlider.valueProperty());
+        lineWidthLabel.textProperty().bind(lineWidthSlider.valueProperty().asString("%.1f"));
+
+        plotView.lineStyleProperty().bind(lineStyleChoice.valueProperty());
     }
 
     private SpinnerValueFactory.DoubleSpinnerValueFactory doubleFactory(double initial) {
@@ -105,29 +123,34 @@ public class TableController {
                 : "y = 2·sin(x) − cos(x^4)";
 
         List<String> problems = new ArrayList<>();
+        List<FunctionPlotView.PlotPoint> plotPoints = new ArrayList<>(n);
 
         for (int i = 0; i < n; i++) {
             double x = a + i * h;
 
-            double y;
             try {
-                y = (selected == f1Radio) ? computeF1(x) : computeF2(x);
+                double y = (selected == f1Radio) ? computeF1(x) : computeF2(x);
 
                 if (!Double.isFinite(y)) {
                     rows.add(new Row(i, df.format(x), "—", "Розрив/переповнення"));
+                    plotPoints.add(new FunctionPlotView.PlotPoint(x, null));
                 } else {
                     rows.add(new Row(i, df.format(x), df.format(y), "OK"));
+                    plotPoints.add(new FunctionPlotView.PlotPoint(x, y));
                 }
 
             } catch (Exception ex) {
                 problems.add("i=" + i + ", x=" + df.format(x) + " → помилка обчислення");
                 rows.add(new Row(i, df.format(x), "—", "Помилка"));
+                plotPoints.add(new FunctionPlotView.PlotPoint(x, null));
             }
         }
 
         String inline = "Інтервал [" + df.format(a) + "; " + df.format(b) + "], n=" + n + ", h=" + df.format(h);
         if (selected == f1Radio) f1Result.setText("Параметри: " + inline);
         else f2Result.setText("Параметри: " + inline);
+
+        plotView.setPoints(plotPoints);
 
         if (!problems.isEmpty()) {
             showInfo("Попередження",
@@ -138,14 +161,14 @@ public class TableController {
             showInfo("Готово",
                     "Функція: " + funcText +
                             "\nІнтервал: [" + df.format(a) + "; " + df.format(b) + "], n=" + n +
-                            "\nТаблицю заповнено без помилок.");
+                            "\nТаблицю заповнено без помилок, графік побудовано.");
         }
     }
 
     private double computeF1(double x) {
-        double part1 = (Math.pow(2, x + 1) + 10) / 4.0;
-        double denom = Math.pow(2, 145 * x - 2);
-        return part1 + 9.0 / denom;
+        double part1 = (Math.pow(2, (x + 1)) + 10) / 4.0;
+        double denom = Math.pow(2, ((145 * x) - 2));
+        return part1 + (9.0 / denom);
     }
 
     private double computeF2(double x) {
@@ -168,6 +191,5 @@ public class TableController {
         alert.showAndWait();
     }
 
-    public record Row(Integer i, String x, String y, String status) {
-    }
+    public record Row(Integer i, String x, String y, String status) {}
 }
