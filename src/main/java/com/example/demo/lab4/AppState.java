@@ -1,6 +1,8 @@
 package com.example.demo.lab4;
 
 import com.example.demo.lab3.FunctionPlotView;
+
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,4 +38,14 @@ public class AppState {
         rows.clear();
         plotPoints.clear();
     }
+
+    // lab 5
+    private File currentFile;
+    private boolean dirty = false;
+
+    public File getCurrentFile() { return currentFile; }
+    public void setCurrentFile(File f) { this.currentFile = f; }
+
+    public boolean isDirty() { return dirty; }
+    public void setDirty(boolean dirty) { this.dirty = dirty; }
 }

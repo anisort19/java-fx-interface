@@ -5,15 +5,16 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.*;
 import javafx.fxml.FXML;
+import javafx.print.PrinterJob;
 import javafx.scene.control.*;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Step3TableController implements WindowNavigator.StateAware {
-
-    @FXML private Label infoLabel;
 
     @FXML private TableView<DiagramRow> table;
     @FXML private TableColumn<DiagramRow, Integer> colI;
@@ -76,18 +77,171 @@ public class Step3TableController implements WindowNavigator.StateAware {
         }
 
         state.getRows().addAll(rows);
-
-        String funcText = (state.getFunctionType() == AppState.FunctionType.F1)
-                ? "F1: (2^(x+1)+10)/4 + 9/2^(145x−2)"
-                : "F2: 2·sin(x) − cos(x^4)";
-        infoLabel.setText("Функція: " + funcText + " | Інтервал [" +
-                DiagramMath.format(a) + "; " + DiagramMath.format(b) + "], n=" + n +
-                ", h=" + DiagramMath.format(h) +
-                (problems.isEmpty() ? "" : " | Є проблемні точки"));
     }
 
     @FXML
     private void onNext() {
         WindowNavigator.open(stage, "step4-plot.fxml", "Крок 4: Графік", state, 950, 650);
+    }
+
+    // lab 5
+
+    @FXML
+    private void onNew() {
+        AppState fresh = new AppState();
+        WindowNavigator.open(stage, "step1-function.fxml", "Крок 1: Вибір функції", fresh, 600, 300);
+    }
+
+    @FXML
+    private void onOpen() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Open table");
+        fc.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("All supported (*.txt, *.csv, *.json)", "*.txt", "*.csv", "*.json"),
+                new FileChooser.ExtensionFilter("Text (*.txt)", "*.txt"),
+                new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv"),
+                new FileChooser.ExtensionFilter("JSON (*.json)", "*.json")
+        );
+
+        File file = fc.showOpenDialog(stage);
+        if (file == null) return;
+
+        try {
+            List<DiagramRow> loaded = TableImportIO.openTable(file);
+
+            rows.setAll(loaded);
+
+            state.getRows().clear();
+            state.getRows().addAll(loaded);
+
+            state.getPlotPoints().clear();
+
+            state.setCurrentFile(file);
+            state.setDirty(false);
+
+        } catch (Exception e) {
+            showError("Open error", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onSave() {
+        if (rows.isEmpty()) {
+            new Alert(Alert.AlertType.INFORMATION, "Таблиця порожня — нічого зберігати.").showAndWait();
+            return;
+        }
+
+        if (state.getCurrentFile() == null) {
+            onSaveAs();
+            return;
+        }
+
+        File file = state.getCurrentFile();
+        String name = file.getName().toLowerCase();
+
+        try {
+            if (name.endsWith(".txt")) {
+                TableExportIO.saveAsTxt(rows, file);
+
+            } else if (name.endsWith(".json")) {
+                TableExportIO.saveAsJson(rows, file);
+
+            } else if (name.endsWith(".csv")) {
+                TableExportIO.saveAsCsv(rows, file);
+
+            } else {
+                onSaveAs();
+                return;
+            }
+
+            new Alert(Alert.AlertType.INFORMATION, "Збережено:\n" + file.getAbsolutePath()).showAndWait();
+
+        } catch (Exception e) {
+            showError("Save error", e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onSaveAs() {
+        if (rows.isEmpty()) {
+            new Alert(Alert.AlertType.INFORMATION, "Таблиця порожня — нічого зберігати.").showAndWait();
+            return;
+        }
+
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Save As...");
+
+        FileChooser.ExtensionFilter txt = new FileChooser.ExtensionFilter("Text (*.txt)", "*.txt");
+        FileChooser.ExtensionFilter json = new FileChooser.ExtensionFilter("JSON (*.json)", "*.json");
+        FileChooser.ExtensionFilter csv = new FileChooser.ExtensionFilter("CSV (*.csv)", "*.csv");
+
+        fc.getExtensionFilters().addAll(txt, json, csv);
+        fc.setSelectedExtensionFilter(txt);
+        fc.setInitialFileName("table");
+
+        File file = fc.showSaveDialog(stage);
+        if (file == null) return;
+
+        FileChooser.ExtensionFilter chosen = fc.getSelectedExtensionFilter();
+
+        try {
+            if (chosen == txt) {
+                file = ensureExt(file, ".txt");
+                TableExportIO.saveAsTxt(rows, file);
+            } else if (chosen == json) {
+                file = ensureExt(file, ".json");
+                TableExportIO.saveAsJson(rows, file);
+            } else if (chosen == csv) {
+                file = ensureExt(file, ".csv");
+                TableExportIO.saveAsCsv(rows, file);
+            } else {
+                file = ensureExt(file, ".txt");
+                TableExportIO.saveAsTxt(rows, file);
+            }
+
+            new Alert(Alert.AlertType.INFORMATION, "Збережено:\n" + file.getAbsolutePath()).showAndWait();
+
+        } catch (Exception e) {
+            showError("Save As error", e.getMessage());
+        }
+    }
+
+    private static File ensureExt(File file, String ext) {
+        String name = file.getName().toLowerCase();
+        if (name.endsWith(ext)) return file;
+        return new File(file.getParentFile(), file.getName() + ext);
+    }
+
+    private void showError(String title, String msg) {
+        Alert a = new Alert(Alert.AlertType.ERROR);
+        a.setTitle(title);
+        a.setHeaderText(null);
+        a.setContentText(msg);
+        a.showAndWait();
+    }
+
+    @FXML
+    private void onPrintPdf() {
+        if (table.getItems() == null || table.getItems().isEmpty()) {
+            Alert a = new Alert(Alert.AlertType.INFORMATION, "Таблиця порожня — нічого друкувати.");
+            a.showAndWait();
+            return;
+        }
+
+        PrinterJob job = PrinterJob.createPrinterJob();
+        if (job == null) {
+            showError("Print error", "PrinterJob недоступний.");
+            return;
+        }
+
+        boolean proceed = job.showPrintDialog(stage);
+        if (!proceed) return;
+
+        boolean success = job.printPage(table);
+        if (success) {
+            job.endJob();
+        } else {
+            showError("Print error", "Не вдалося надрукувати сторінку.");
+        }
     }
 }
