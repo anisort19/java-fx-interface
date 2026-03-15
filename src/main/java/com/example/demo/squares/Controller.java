@@ -1,11 +1,15 @@
 package com.example.demo.squares;
 
+import javafx.animation.RotateTransition;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
+import javafx.util.Duration;
 
 public class Controller {
 
@@ -13,22 +17,16 @@ public class Controller {
     private AnchorPane root;
 
     @FXML
-    private Rectangle center;
-
-    @FXML
-    private Rectangle tl;
-
-    @FXML
-    private Rectangle tr;
-
-    @FXML
-    private Rectangle bl;
-
-    @FXML
-    private Rectangle br;
+    private Rectangle center, tl, tr, bl, br;
 
     @FXML
     private Rectangle c1, c2, c3, c4, c5, c6, c7;
+
+    private Shape selected = null;
+    private final Circle selectionMarker = new Circle(5, Color.BLACK);
+
+    private RotateTransition rotateTransition;
+    private boolean dragStarted = false;
 
     @FXML
     public void initialize() {
@@ -39,9 +37,6 @@ public class Controller {
 
         center.widthProperty().bind(tl.widthProperty().multiply(1.4));
         center.heightProperty().bind(center.widthProperty());
-
-        center.xProperty().bind(root.widthProperty().divide(2).subtract(center.widthProperty().divide(2)));
-        center.yProperty().bind(root.heightProperty().divide(2).subtract(center.heightProperty().divide(2)));
 
         tl.widthProperty().bind(root.widthProperty().multiply(0.35));
         tl.heightProperty().bind(tl.widthProperty());
@@ -55,19 +50,9 @@ public class Controller {
         br.widthProperty().bind(tl.widthProperty());
         br.heightProperty().bind(tl.widthProperty());
 
-        tl.setX(0);
-        tl.setY(0);
+        root.widthProperty().addListener((obs, oldVal, newVal) -> updateInitialPositions());
+        root.heightProperty().addListener((obs, oldVal, newVal) -> updateInitialPositions());
 
-        tr.xProperty().bind(root.widthProperty().subtract(tr.widthProperty()));
-        tr.setY(0);
-
-        bl.setX(0);
-        bl.yProperty().bind(root.heightProperty().subtract(bl.heightProperty()));
-
-        br.xProperty().bind(root.widthProperty().subtract(br.widthProperty()));
-        br.yProperty().bind(root.heightProperty().subtract(br.heightProperty()));
-
-        // палітра
         setupColor(c1);
         setupColor(c2);
         setupColor(c3);
@@ -75,20 +60,48 @@ public class Controller {
         setupColor(c5);
         setupColor(c6);
         setupColor(c7);
+
+        selectionMarker.setVisible(false);
+        root.getChildren().add(selectionMarker);
+
+        enableDrag(center);
+        enableDrag(tl);
+        enableDrag(tr);
+        enableDrag(bl);
+        enableDrag(br);
     }
 
-    private void setupColor(Rectangle rect){
+    private void updateInitialPositions() {
+        if (!dragStarted) {
+            double rootW = root.getWidth();
+            double rootH = root.getHeight();
 
+            center.setLayoutX((rootW - center.getWidth()) / 2);
+            center.setLayoutY((rootH - center.getHeight()) / 2);
+
+            tl.setLayoutX(0);
+            tl.setLayoutY(0);
+
+            tr.setLayoutX(rootW - tr.getWidth());
+            tr.setLayoutY(0);
+
+            bl.setLayoutX(0);
+            bl.setLayoutY(rootH - bl.getHeight());
+
+            br.setLayoutX(rootW - br.getWidth());
+            br.setLayoutY(rootH - br.getHeight());
+        }
+    }
+
+    private void setupColor(Rectangle rect) {
         rect.setOnMouseClicked(e -> {
-
             Color baseColor = (Color) rect.getFill();
 
-            if(e.getButton() == MouseButton.PRIMARY){
+            if (e.getButton() == MouseButton.PRIMARY) {
                 center.setFill(baseColor);
             }
 
-            if(e.getButton() == MouseButton.SECONDARY){
-
+            if (e.getButton() == MouseButton.SECONDARY) {
                 double hue = baseColor.getHue();
                 double saturation = baseColor.getSaturation();
                 double brightness = baseColor.getBrightness();
@@ -97,16 +110,70 @@ public class Controller {
                 brightness = Math.min(1.0, brightness + 0.1);
 
                 Color lighter = Color.hsb(hue, saturation, brightness);
-
                 center.setFill(lighter);
             }
+        });
+    }
 
+    private void enableDrag(Shape shape) {
+        final Delta dragDelta = new Delta();
+
+        shape.setOnMousePressed(e -> {
+            dragStarted = true;
+            selectShape(shape);
+            dragDelta.x = e.getSceneX() - shape.getLayoutX();
+            dragDelta.y = e.getSceneY() - shape.getLayoutY();
+            e.consume();
         });
 
+        shape.setOnMouseDragged(e -> {
+            double newX = e.getSceneX() - dragDelta.x;
+            double newY = e.getSceneY() - dragDelta.y;
+
+            double maxX = root.getWidth() - shape.getBoundsInLocal().getWidth();
+            double maxY = root.getHeight() - shape.getBoundsInLocal().getHeight();
+            newX = Math.max(0, Math.min(newX, maxX));
+            newY = Math.max(0, Math.min(newY, maxY));
+
+            shape.setLayoutX(newX);
+            shape.setLayoutY(newY);
+
+            updateSelectionMarker();
+            e.consume();
+        });
+    }
+
+    private void selectShape(Shape shape) {
+        selected = shape;
+        updateSelectionMarker();
+        startRotation(shape);
+    }
+
+    private void updateSelectionMarker() {
+        if (selected != null) {
+            selectionMarker.setVisible(true);
+            double centerX = selected.getLayoutX() + selected.getBoundsInLocal().getWidth() / 2;
+            double centerY = selected.getLayoutY() + selected.getBoundsInLocal().getHeight() / 2;
+            selectionMarker.setLayoutX(centerX);
+            selectionMarker.setLayoutY(centerY);
+        } else {
+            selectionMarker.setVisible(false);
+        }
+    }
+
+    private void startRotation(Shape shape) {
+        if (rotateTransition != null) rotateTransition.stop();
+
+        rotateTransition = new RotateTransition(Duration.seconds(3), shape);
+        rotateTransition.setByAngle(360);
+        rotateTransition.setCycleCount(RotateTransition.INDEFINITE);
+        rotateTransition.play();
     }
 
     @FXML
-    private void exitApp(){
+    private void exitApp() {
         Platform.exit();
     }
+
+    private static class Delta { double x, y; }
 }
