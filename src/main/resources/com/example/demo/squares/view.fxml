@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.shape.Rectangle?>
+
+<AnchorPane fx:id="root"
+            prefWidth="600"
+            prefHeight="600"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.demo.squares.Controller">
+
+    <Rectangle fx:id="tl" fill="#880000"/>
+    <Rectangle fx:id="tr" fill="#FF0000"/>
+    <Rectangle fx:id="bl" fill="#00FF00"/>
+    <Rectangle fx:id="br" fill="#008800"/>
+
+    <Rectangle fx:id="center" fill="royalblue"/>
+
+</AnchorPane>
