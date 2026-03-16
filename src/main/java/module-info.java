@@ -17,10 +17,12 @@ module com.example.demo {
     opens com.example.demo.lab3 to javafx.fxml;
     opens com.example.demo.lab4 to javafx.fxml;
     opens com.example.demo.squares to javafx.fxml;
+    opens com.example.demo.timer to javafx.fxml;
     exports com.example.demo;
     exports com.example.demo.lab1;
     exports com.example.demo.lab2;
     exports com.example.demo.lab3;
     exports com.example.demo.lab4;
     exports com.example.demo.squares;
+    exports com.example.demo.timer;
 }
