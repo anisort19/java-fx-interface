@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.demo.timer.Controller"
+      spacing="10"
+      style="-fx-padding: 10px;">
+
+    <!-- Введення повідомлення -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Повідомлення:"/>
+        <TextField fx:id="msgInput" HBox.hgrow="ALWAYS"/>
+    </HBox>
+
+    <!-- Вибір режиму -->
+    <HBox spacing="20" alignment="CENTER_LEFT">
+        <RadioButton fx:id="delayRadio" text="Через секунди"/>
+        <Spinner fx:id="secondsSpinner" prefWidth="80"/>
+        <RadioButton fx:id="exactTimeRadio" text="Точний час"/>
+        <DatePicker fx:id="datePicker"/>
+        <Spinner fx:id="hourSpinner" prefWidth="60"/>
+        <Spinner fx:id="minuteSpinner" prefWidth="60"/>
+    </HBox>
+
+    <!-- Кнопка додати -->
+    <Button text="Додати повідомлення" onAction="#addMessage"/>
+
+    <!-- Таблиця повідомлень -->
+    <TableView fx:id="table" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="msgColumn" text="Повідомлення" prefWidth="250"/>
+            <TableColumn fx:id="timeColumn" text="Час" prefWidth="150"/>
+            <TableColumn fx:id="doneColumn" text="Виконано" prefWidth="80"/>
+        </columns>
+    </TableView>
+
+    <!-- Вихід з програми -->
+    <Button text="Вихід" onAction="#exitApp" maxWidth="100"/>
+</VBox>
